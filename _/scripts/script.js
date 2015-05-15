@@ -112,10 +112,10 @@ var tempGraph = (function(width,height,margin,circleWidth) {
           vGuide = d3.select('svg').append('g'),
           hGuide = d3.select('svg').append('g');
 
-          // nodes.forEach(function(node,i) {
-          //   node.x = xScale(i) + xScale.rangeBand()/2;
-          //   node.y = height - yScale(node.temp);
-          // });
+          nodes.forEach(function(node,i) {
+            node.x = xScale(i) + xScale.rangeBand()/2;
+            node.y = height - yScale(node.temp);
+          });
 
           chart.selectAll('line')
             .data(links).enter().append('line')
@@ -200,7 +200,7 @@ var tempGraph = (function(width,height,margin,circleWidth) {
         });
 
       }
-    }
+    };
 
 })(600,400,{top: 40, right: 30, bottom: 40, left: 50 },10);
 
