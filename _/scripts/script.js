@@ -1,216 +1,220 @@
-var daysRef = [
-  'Sun',
-  'Mon',
-  'Tues',
-  'Weds',
-  'Thurs',
-  'Fri',
-  'Sat',
-  ],
-  circleWidth = 10, 
-  kelvin_to_f = function(k) {
-    return (((k - 273.15)*1.8) + 32).toFixed(2);
-  },
-  unixCode_to_weekDay = function(uc) {
-    return daysRef[new Date(uc*1000).getDay()];
-  },
-  formatChart = function(city) {
+var tempGraph = (function(width,height,margin,circleWidth) {
 
-    d3.json('http://api.openweathermap.org/data/2.5/forecast/daily?q='+city, function(data) {
+  var daysRef = [
+    'Sun',
+    'Mon',
+    'Tues',
+    'Weds',
+    'Thurs',
+    'Fri',
+    'Sat',
+    ],
+    kelvin_to_f = function(k) {
+      return (((k - 273.15)*1.8) + 32).toFixed(2);
+    },
+    unixCode_to_weekDay = function(uc) {
+      return daysRef[new Date(uc*1000).getDay()];
+    },
+    cityName,
+    dataLength,
+    height = height - margin.top - margin.bottom,
+    width = width - margin.left - margin.right,
+    barWidth = 50,
+    barOffset = 5,
+    tempColor;
 
-      var barData = [],
-        axisDays = [],
-        nodes = [],
-        links = [],
-        cityName,
-        dataLength;
+    return {
+      submitting: false,
+      formatChart: function(city) {
 
-      if(!data || data.cod === '404') return;
+        d3.json('http://api.openweathermap.org/data/2.5/forecast/daily?q='+city, function(data) {
 
-      dataLength = data.list.length;
-      city = data.city.name + ', ' + data.city.country;
+          var barData = [],
+            axisDays = [],
+            nodes = [],
+            links = [];
 
-      data.list.forEach(function(obj,i) {
+          if(!data || data.cod === '404') return;
 
-        var f = kelvin_to_f(obj.temp.day),
-          weekDay = unixCode_to_weekDay(obj.dt),
-          node = {
-            'temp': f
-          };
+          dataLength = data.list.length;
+          city = data.city.name + ', ' + data.city.country;
 
-        barData.push(f);
-        axisDays.push(weekDay);
+          data.list.forEach(function(obj,i) {
 
-        if(i !== dataLength-1) node.target = i+1;
+            var f = kelvin_to_f(obj.temp.day),
+              weekDay = unixCode_to_weekDay(obj.dt),
+              node = {
+                'temp': f
+              };
 
-        nodes.push(node);
+            barData.push(f);
+            axisDays.push(weekDay);
 
-      });
+            if(i !== dataLength-1) node.target = i+1;
 
-      nodes.forEach(function(node) {
+            nodes.push(node);
 
-        if( node.hasOwnProperty('target') ) {
-          links.push({
-            'source': node,
-            'target': nodes[node.target]
           });
-        }
 
-      });
+          nodes.forEach(function(node) {
 
-      var margin = { top: 40, right: 30, bottom: 40, left:50 },
-        height = 400 - margin.top - margin.bottom,
-        width = 600 - margin.left - margin.right,
-        barWidth = 50,
-        barOffset = 5,
-        tempColor,
+            if( node.hasOwnProperty('target') ) {
+              links.push({
+                'source': node,
+                'target': nodes[node.target]
+              });
+            }
 
-        colors = d3.scale.linear()
-          .domain([0, barData.length*0.33, barData.length*0.66, barData.length])
-          .range(['#B58929','#C61C6F', '#268BD2', '#85992C']),
+          });
 
-        yScale = d3.scale.linear()
-          .domain([d3.min(barData)-5, d3.max(barData)+5])
-          .range([0, height]),
+          var colors = d3.scale.linear()
+            .domain([0, barData.length*0.33, barData.length*0.66, barData.length])
+            .range(['#B58929','#C61C6F', '#268BD2', '#85992C']),
 
-        xScale = d3.scale.ordinal()
-          .domain(d3.range(0, barData.length))
-          .rangeBands([0, width], 0.2),
+            yScale = d3.scale.linear()
+              .domain([d3.min(barData)-5, d3.max(barData)+5])
+              .range([0, height]),
 
-        tooltip = d3.select('body').append('div')
-          .attr('id','tool-tip'),
+            xScale = d3.scale.ordinal()
+              .domain(d3.range(0, barData.length))
+              .rangeBands([0, width], 0.2),
 
-        svgContainer = d3.select('#chart').append('svg'),
+            tooltip = d3.select('body').append('div')
+              .attr('id','tool-tip'),
 
-        chart = svgContainer
-          .style('background', '#E7E0CB')
-          .attr('width', width + margin.left + margin.right)
-          .attr('height', height + margin.top + margin.bottom)
-          .append('g')
-          .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
+            svgContainer = d3.select('#chart').append('svg'),
 
-        vGuideScale = d3.scale.linear()
-          .domain([d3.min(barData)-5, d3.max(barData)+5])
-          .range([height, 0]),
+            chart = svgContainer
+              .style('background', '#E7E0CB')
+              .attr('width', width + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom)
+              .append('g')
+              .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
 
-        hGuideScale = d3.scale.ordinal()
-          .domain(axisDays)
-          .rangeBands([0, width], 0.2),
+            vGuideScale = d3.scale.linear()
+              .domain([d3.min(barData)-5, d3.max(barData)+5])
+              .range([height, 0]),
 
-        vAxis = d3.svg.axis()
-          .scale(vGuideScale)
-          .orient('left')
-          .ticks(10),
+            hGuideScale = d3.scale.ordinal()
+              .domain(axisDays)
+              .rangeBands([0, width], 0.2),
 
-        hAxis = d3.svg.axis()
-          .scale(hGuideScale)
-          .orient('bottom')
-          .tickValues(hGuideScale.domain()),
+            vAxis = d3.svg.axis()
+              .scale(vGuideScale)
+              .orient('left')
+              .ticks(10),
 
-      vGuide = d3.select('svg').append('g'),
-      hGuide = d3.select('svg').append('g');
+            hAxis = d3.svg.axis()
+              .scale(hGuideScale)
+              .orient('bottom')
+              .tickValues(hGuideScale.domain()),
 
-      nodes.forEach(function(node,i) {
-        node.x = xScale(i) + xScale.rangeBand()/2;
-        node.y = height - yScale(node.temp);
-      });
+          vGuide = d3.select('svg').append('g'),
+          hGuide = d3.select('svg').append('g');
 
-      var link = chart.selectAll('line')
-        .data(links).enter().append('line')
-        .attr('stroke', function(d,i) {
-          return colors(i);
-        })
-        .attr('x1', function(d) { return d.source.x })
-        .attr('y1', function(d) { return d.source.y })
-        .attr('x2', function(d) { return d.source.x })
-        .attr('y2', function(d) { return d.source.y })
-        .transition()
-        .attr('x2', function(d) { return d.target.x })
-        .attr('y2', function(d) { return d.target.y })
-        .delay(function(d, i) {
-          return i * 200;
-        })
-        .ease('linear');
+          nodes.forEach(function(node,i) {
+            node.x = xScale(i) + xScale.rangeBand()/2;
+            node.y = height - yScale(node.temp);
+          });
 
-      var node = chart.selectAll('circle')
-        .data(nodes).enter()
-        .append('circle')
-        .attr('cx', function(d) { return d.x; })
-        .attr('cy', function(d) { return d.y; })
-        .attr('fill', function(d,i) {
-          return colors(i);
-        })
-        .on('mouseover', function(d) {
+          chart.selectAll('line')
+            .data(links).enter().append('line')
+            .attr('stroke', function(d,i) {
+              return colors(i);
+            })
+            .attr('x1', function(d) { return d.source.x })
+            .attr('y1', function(d) { return d.source.y })
+            .attr('x2', function(d) { return d.source.x })
+            .attr('y2', function(d) { return d.source.y })
+            .transition()
+            .attr('x2', function(d) { return d.target.x })
+            .attr('y2', function(d) { return d.target.y })
+            .delay(function(d, i) {
+              return i * 200;
+            })
+            .ease('linear');
 
-          tooltip.transition()
-              .style('opacity', .9)
+          chart.selectAll('circle')
+            .data(nodes).enter()
+            .append('circle')
+            .attr('cx', function(d) { return d.x; })
+            .attr('cy', function(d) { return d.y; })
+            .attr('fill', function(d,i) {
+              return colors(i);
+            })
+            .on('mouseover', function(d) {
 
-          tooltip.html(d.temp + '&deg;' + 'F')
-              .style('left', (d3.event.pageX - 35) + 'px')
-              .style('top',  (d3.event.pageY - 35) + 'px')
+              tooltip.transition()
+                  .style('opacity', .9)
 
-          tempColor = this.style.fill;
+              tooltip.html(d.temp + '&deg;' + 'F')
+                  .style('left', (d3.event.pageX - 35) + 'px')
+                  .style('top',  (d3.event.pageY - 35) + 'px')
 
-          d3.select(this).transition()
-              .style('opacity', .5)
-              .style('fill', 'yellow')
+              tempColor = this.style.fill;
 
-        })
-        .on('mouseout', function(d) {
+              d3.select(this).transition()
+                  .style('opacity', .5)
+                  .style('fill', 'yellow')
 
-          d3.select(this).transition()
-            .style('opacity', 1)
-            .style('fill', tempColor)
+            })
+            .on('mouseout', function(d) {
 
-          tooltip.transition()
-            .style('opacity',0);
+              d3.select(this).transition()
+                .style('opacity', 1)
+                .style('fill', tempColor)
 
-        })
-        .transition()
-        .attr('r',circleWidth)
-        .delay(function(d, i) {
-            return i * 200;
-        })
-        .ease('elastic');
+              tooltip.transition()
+                .style('opacity',0);
 
-      hAxis(hGuide);
-      hGuide.attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
-      hGuide.selectAll('path')
-          .style({ fill: 'none', stroke: "#000"});
-      hGuide.selectAll('line')
-          .style({ stroke: "#000"});
+            })
+            .transition()
+            .attr('r',circleWidth)
+            .delay(function(d, i) {
+                return i * 200;
+            })
+            .ease('elastic');
 
-      vAxis(vGuide);
-      vGuide.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
-      vGuide.selectAll('path')
-          .style({ fill: 'none', stroke: "#000"});
-      vGuide.selectAll('line')
-          .style({ stroke: "#000"});
+          hAxis(hGuide);
+          hGuide.attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
+          hGuide.selectAll('path')
+              .style({ fill: 'none', stroke: "#000"});
+          hGuide.selectAll('line')
+              .style({ stroke: "#000"});
 
-      svgContainer.append("text")
-        .attr('x', (width / 2))             
-        .attr('y', (margin.top / 2))
-        .attr('text-anchor', 'middle')  
-        .style('font-size', '16px') 
-        .style('text-decoration', 'underline')  
-        .text('Temperatures for ' + city);
+          vAxis(vGuide);
+          vGuide.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+          vGuide.selectAll('path')
+              .style({ fill: 'none', stroke: "#000"});
+          vGuide.selectAll('line')
+              .style({ stroke: "#000"});
 
-    });
+          svgContainer.append("text")
+            .attr('x', (width / 2))             
+            .attr('y', (margin.top / 2))
+            .attr('text-anchor', 'middle')  
+            .style('font-size', '16px') 
+            .style('text-decoration', 'underline')  
+            .text('Temperatures for ' + city);
 
-  };
+        });
+
+      }
+    }
+
+})(600,400,{top: 40, right: 30, bottom: 40, left: 50 },10);
 
 document.getElementById('city-input').addEventListener('input',function(e) {
 
-  var submitting = false,
-  submit = function(target) {
-    submitting = false;
+  var submit = function() {
+    tempGraph.submitting = false;
     document.getElementById('chart').innerHTML = '';
-    formatChart(target.value);
+    tempGraph.formatChart(this.value);
   };
 
-  if (!submitting) {
-    submitting = true;
-    setTimeout(submit(e.target), 500);
+  if (!tempGraph.submitting) {
+    tempGraph.submitting = true;
+    setTimeout(submit.bind(e.target), 500);
   }
 
-})
+});
