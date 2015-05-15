@@ -1,3 +1,14 @@
 #graphic {
   margin: 0 auto;
 }
+
+#tool-tip {
+  position: absolute;
+  padding: 0 10px;
+  background: #fff;
+  opacity: 0;
+}
+
+circle {
+  cursor: pointer;
+}
