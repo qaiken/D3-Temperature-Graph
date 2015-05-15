@@ -7,7 +7,7 @@ var daysRef = [
   'Fri',
   'Sat',
   ],
-  circleWidth = 10,
+  circleWidth = 10, 
   kelvin_to_f = function(k) {
     return (((k - 273.15)*1.8) + 32).toFixed(2);
   },
@@ -22,11 +22,13 @@ var daysRef = [
         axisDays = [],
         nodes = [],
         links = [],
+        cityName,
         dataLength;
 
       if(!data || data.cod === '404') return;
 
       dataLength = data.list.length;
+      city = data.city.name + ', ' + data.city.country;
 
       data.list.forEach(function(obj,i) {
 
@@ -56,7 +58,7 @@ var daysRef = [
 
       });
 
-      var margin = { top: 30, right: 30, bottom: 40, left:50 },
+      var margin = { top: 40, right: 30, bottom: 40, left:50 },
         height = 400 - margin.top - margin.bottom,
         width = 600 - margin.left - margin.right,
         barWidth = 50,
@@ -78,7 +80,9 @@ var daysRef = [
         tooltip = d3.select('body').append('div')
           .attr('id','tool-tip'),
 
-        mySVG = d3.select('#chart').append('svg')
+        svgContainer = d3.select('#chart').append('svg'),
+
+        chart = svgContainer
           .style('background', '#E7E0CB')
           .attr('width', width + margin.left + margin.right)
           .attr('height', height + margin.top + margin.bottom)
@@ -103,15 +107,15 @@ var daysRef = [
           .orient('bottom')
           .tickValues(hGuideScale.domain()),
 
-        vGuide = d3.select('svg').append('g'),
-        hGuide = d3.select('svg').append('g');
+      vGuide = d3.select('svg').append('g'),
+      hGuide = d3.select('svg').append('g');
 
       nodes.forEach(function(node,i) {
         node.x = xScale(i) + xScale.rangeBand()/2;
         node.y = height - yScale(node.temp);
       });
 
-      var link = mySVG.selectAll('line')
+      var link = chart.selectAll('line')
         .data(links).enter().append('line')
         .attr('stroke', function(d,i) {
           return colors(i);
@@ -128,7 +132,7 @@ var daysRef = [
         })
         .ease('linear');
 
-      var node = mySVG.selectAll('circle')
+      var node = chart.selectAll('circle')
         .data(nodes).enter()
         .append('circle')
         .attr('cx', function(d) { return d.x; })
@@ -183,11 +187,30 @@ var daysRef = [
       vGuide.selectAll('line')
           .style({ stroke: "#000"});
 
+      svgContainer.append("text")
+        .attr('x', (width / 2))             
+        .attr('y', (margin.top / 2))
+        .attr('text-anchor', 'middle')  
+        .style('font-size', '16px') 
+        .style('text-decoration', 'underline')  
+        .text('Temperatures for ' + city);
+
     });
 
   };
 
 document.getElementById('city-input').addEventListener('input',function(e) {
-  document.getElementById('chart').innerHTML = '';
-  formatChart(this.value);
+
+  var submitting = false,
+  submit = function(target) {
+    submitting = false;
+    document.getElementById('chart').innerHTML = '';
+    formatChart(target.value);
+  };
+
+  if (!submitting) {
+    submitting = true;
+    setTimeout(submit(e.target), 500);
+  }
+
 })
