@@ -1,0 +1,14 @@
+{
+  "name": "D3-Temperature-Graph",
+  "version": "0.1.0",
+  "description": "Uses OpenWeatherMap API to graph the temperatures of a user inputted city.",
+  "author": "Quinton Aiken",
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-concat": "~2.1.7",
+    "gulp-livereload": "~1.1.1",
+    "gulp-ruby-sass": "~0.3.0",
+    "gulp-uglify": "~0.2.1",
+    "gulp-util": "^3.0.4"
+  }
+}

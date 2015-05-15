@@ -1,0 +1,148 @@
+//FONT-SIZE//////////////////////////////////////////////////////////////////////
+
+/*
+Because all browsers have a default font-size of 16px, 
+setting the font-size to 62.5% on the html element gives 
+it a font-size of 10px (10 / 16 * 100 = 62.5) without explicitely 
+setting it to 10px which would prevent zooming.
+Then, setting a font-size of 1.6rem on an element
+simply results in a font-size of 16px
+*/
+
+@mixin font-size($sizeValue: 1.6) { // 2.2 = 22px, 5.4 = 54px, etc.
+  font-size: ($sizeValue * 10) + px; // Will be overridden if browser supports rem
+  font-size: $sizeValue + rem;
+}
+
+//ANIMATIONS/////////////////////////////////////////////////////////////////////
+
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes $animation-name {
+    @content;
+  }
+  @-moz-keyframes $animation-name {
+    @content;
+  }  
+  @-ms-keyframes $animation-name {
+    @content;
+  }
+  @-o-keyframes $animation-name {
+    @content;
+  }  
+  @keyframes $animation-name {
+    @content;
+  }
+}
+
+@mixin animation($str) {
+  -webkit-animation: #{$str};
+  -moz-animation: #{$str};
+  -ms-animation: #{$str};
+  -o-animation: #{$str};
+  animation: #{$str};      
+}
+
+/*
+Usage:
+@include keyframes(slide-down) {
+  0% { opacity: 1; }
+  90% { opacity: 0; }
+}
+
+.element {
+  width: 100px;
+  height: 100px;
+  background: black;
+  @include animation('slide-down 5s 3');
+}
+*/
+
+//TRANSITIONS/////////////////////////////////////////////////////////////////////
+
+@mixin transition($args...) {
+  -webkit-transition: $args;
+  -moz-transition: $args;
+  -ms-transition: $args;
+  -o-transition: $args;
+  transition: $args;
+}
+
+/*
+Usage:
+a {
+  color: gray;
+  @include transition(color .3s ease);
+  &:hover {
+    color: black;
+  }
+}
+*/
+
+//OPACITY/////////////////////////////////////////////////////////////////////
+
+@mixin opacity($opacity) {
+  opacity: $opacity;
+  $opacity-ie: $opacity * 100;
+  filter: alpha(opacity=$opacity-ie); //IE8
+}
+
+/*
+Usage:
+.faded-text {
+  @include opacity(0.8);
+}
+*/
+
+//CLEARFIX/////////////////////////////////////////////////////////////////////
+
+%clearfix {
+  *zoom: 1;
+  &:before {
+    content: " ";
+    display: table;
+  }
+  &:after {
+    content: " ";
+    display: table;
+    clear: both;
+  }
+}
+
+/*
+Usage:
+.container-with-floated-children {
+  @extend %clearfix;
+}
+*/
+
+//RETINA-IMAGES/////////////////////////////////////////////////////////////////////
+
+/* if you have a kitten.jpg at 500px x 500px, the retina image must be named
+kitten@2x.jpg at 1000px x 1000px */
+
+@mixin background-image-retina($file, $type, $width, $height) {
+  background-image: image-url($file + '.' + $type);
+  @media only screen and (-webkit-min-device-pixel-ratio: 2),
+    only screen and (-moz-min-device-pixel-ratio: 2),
+    only screen and (-o-min-device-pixel-ratio: 2/1),
+    only screen and (min-device-pixel-ratio: 2),
+    only screen and (min-resolution: 192dpi),
+    only screen and (min-resolution: 2dppx){
+    & {
+      background-image: image-url($file + '@2x.' + $type);
+      -webkit-background-size: $width $height;
+      -moz-background-size: $width $height;
+      -o-background-size: $width $height;
+      background-size: $width $height;
+    }
+  }
+}
+
+/*
+Usage:
+#logo {
+  width: 200px;
+  height: 100px;
+  @include background-image-retina(logo, png, 200px, 100px);
+}
+*/
