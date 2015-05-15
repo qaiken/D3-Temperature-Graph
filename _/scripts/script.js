@@ -112,23 +112,23 @@ var tempGraph = (function(width,height,margin,circleWidth) {
           vGuide = d3.select('svg').append('g'),
           hGuide = d3.select('svg').append('g');
 
-          nodes.forEach(function(node,i) {
-            node.x = xScale(i) + xScale.rangeBand()/2;
-            node.y = height - yScale(node.temp);
-          });
+          // nodes.forEach(function(node,i) {
+          //   node.x = xScale(i) + xScale.rangeBand()/2;
+          //   node.y = height - yScale(node.temp);
+          // });
 
           chart.selectAll('line')
             .data(links).enter().append('line')
             .attr('stroke', function(d,i) {
               return colors(i);
             })
-            .attr('x1', function(d) { return d.source.x })
-            .attr('y1', function(d) { return d.source.y })
-            .attr('x2', function(d) { return d.source.x })
-            .attr('y2', function(d) { return d.source.y })
+            .attr('x1', function(d) { return d.source.x; })
+            .attr('y1', function(d) { return d.source.y; })
+            .attr('x2', function(d) { return d.source.x; })
+            .attr('y2', function(d) { return d.source.y; })
             .transition()
-            .attr('x2', function(d) { return d.target.x })
-            .attr('y2', function(d) { return d.target.y })
+            .attr('x2', function(d) { return d.target.x; })
+            .attr('y2', function(d) { return d.target.y; })
             .delay(function(d, i) {
               return i * 200;
             })
@@ -145,17 +145,17 @@ var tempGraph = (function(width,height,margin,circleWidth) {
             .on('mouseover', function(d) {
 
               tooltip.transition()
-                  .style('opacity', .9)
+                .style('opacity', .9);
 
               tooltip.html(d.temp + '&deg;' + 'F')
-                  .style('left', (d3.event.pageX - 35) + 'px')
-                  .style('top',  (d3.event.pageY - 35) + 'px')
+                .style('left', (d3.event.pageX - 35) + 'px')
+                .style('top',  (d3.event.pageY - 35) + 'px');
 
               tempColor = this.style.fill;
 
               d3.select(this).transition()
-                  .style('opacity', .5)
-                  .style('fill', 'yellow')
+                .style('opacity', .5)
+                .style('fill', 'yellow')
 
             })
             .on('mouseout', function(d) {
@@ -178,16 +178,16 @@ var tempGraph = (function(width,height,margin,circleWidth) {
           hAxis(hGuide);
           hGuide.attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
           hGuide.selectAll('path')
-              .style({ fill: 'none', stroke: "#000"});
+            .style({ fill: 'none', stroke: "#000"});
           hGuide.selectAll('line')
-              .style({ stroke: "#000"});
+            .style({ stroke: "#000"});
 
           vAxis(vGuide);
           vGuide.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
           vGuide.selectAll('path')
-              .style({ fill: 'none', stroke: "#000"});
+            .style({ fill: 'none', stroke: "#000"});
           vGuide.selectAll('line')
-              .style({ stroke: "#000"});
+            .style({ stroke: "#000"});
 
           svgContainer.append("text")
             .attr('x', (width / 2))             
