@@ -76,11 +76,7 @@ var daysRef = [
           .rangeBands([0, width], 0.2),
 
         tooltip = d3.select('body').append('div')
-          .attr('id','tooltip')
-          .style('position', 'absolute')
-          .style('padding', '0 10px')
-          .style('background', 'white')
-          .style('opacity', 0),
+          .attr('id','tool-tip'),
 
         mySVG = d3.select('#chart').append('svg')
           .style('background', '#E7E0CB')
@@ -118,32 +114,28 @@ var daysRef = [
       var link = mySVG.selectAll('line')
         .data(links).enter().append('line')
         .attr('stroke', function(d,i) {
-            return colors(i);
-        });
-
-      link
+          return colors(i);
+        })
         .attr('x1', function(d) { return d.source.x })
         .attr('y1', function(d) { return d.source.y })
+        .attr('x2', function(d) { return d.source.x })
+        .attr('y2', function(d) { return d.source.y })
+        .transition()
         .attr('x2', function(d) { return d.target.x })
-        .attr('y2', function(d) { return d.target.y });
+        .attr('y2', function(d) { return d.target.y })
+        .delay(function(d, i) {
+          return i * 200;
+        })
+        .ease('linear');
 
       var node = mySVG.selectAll('circle')
         .data(nodes).enter()
-        .append('circle');
-      node
+        .append('circle')
         .attr('cx', function(d) { return d.x; })
         .attr('cy', function(d) { return d.y; })
         .attr('fill', function(d,i) {
-            return colors(i);
+          return colors(i);
         })
-        .transition()
-        .attr('r',circleWidth)
-        .delay(function(d, i) {
-            return i * 200;
-        })
-        .ease('elastic');
-
-      node
         .on('mouseover', function(d) {
 
           tooltip.transition()
@@ -169,7 +161,13 @@ var daysRef = [
           tooltip.transition()
             .style('opacity',0);
 
-        });
+        })
+        .transition()
+        .attr('r',circleWidth)
+        .delay(function(d, i) {
+            return i * 200;
+        })
+        .ease('elastic');
 
       hAxis(hGuide);
       hGuide.attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
