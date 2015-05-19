@@ -177,24 +177,15 @@ module.exports = function(width,height,margin,circleWidth) {
 
           hAxis(hGuide);
           hGuide.attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
-          hGuide.selectAll('path')
-            .style({ fill: 'none', stroke: "#000"});
-          hGuide.selectAll('line')
-            .style({ stroke: "#000"});
 
           vAxis(vGuide);
           vGuide.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
-          vGuide.selectAll('path')
-            .style({ fill: 'none', stroke: "#000"});
-          vGuide.selectAll('line')
-            .style({ stroke: "#000"});
 
           svgContainer.append("text")
-            .attr('x', (width / 2))             
+            .classed('headline',true)
+            .attr('x', (width / 2))
             .attr('y', (margin.top / 2))
-            .attr('text-anchor', 'middle')  
-            .style('font-size', '16px') 
-            .style('text-decoration', 'underline')  
+            .attr('text-anchor', 'middle')
             .text('Temperatures for ' + city);
 
         });
