@@ -5,6 +5,7 @@
   "author": "Quinton Aiken",
   "devDependencies": {
     "gulp": "^3.8.11",
+    "gulp-browserify": "^0.5.1",
     "gulp-concat": "~2.1.7",
     "gulp-livereload": "~1.1.1",
     "gulp-ruby-sass": "~0.3.0",
