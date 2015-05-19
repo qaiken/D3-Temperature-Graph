@@ -155,14 +155,14 @@ module.exports = function(width,height,margin,circleWidth) {
 
               d3.select(this).transition()
                 .style('opacity', .5)
-                .style('fill', 'yellow')
+                .style('fill', 'yellow');
 
             })
             .on('mouseout', function(d) {
 
               d3.select(this).transition()
                 .style('opacity', 1)
-                .style('fill', tempColor)
+                .style('fill', tempColor);
 
               tooltip.transition()
                 .style('opacity',0);
