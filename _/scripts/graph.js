@@ -27,7 +27,7 @@ module.exports = function(width,height,margin,circleWidth) {
       submitting: false,
       formatChart: function(city) {
 
-        d3.json('http://api.openweathermap.org/data/2.5/forecast/daily?q='+city, function(data) {
+        d3.json('http://api.openweathermap.org/data/2.5/forecast/daily?'+city, function(data) {
 
           var barData = [],
             axisDays = [],
