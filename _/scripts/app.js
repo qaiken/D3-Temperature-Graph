@@ -5,21 +5,21 @@ var graph = require('./graph'),
 geoLocation.init(function(pos) {
   var lat = pos.coords.latitude,
     lon = pos.coords.longitude;
-  document.getElementById('chart').innerHTML = '';
-  tempGraph.formatChart('lat='+lat+'&lon='+lon);
+  tempGraph.initChart('lat='+lat+'&lon='+lon);
 });
 
 document.getElementById('city-input').addEventListener('input',function(e) {
 
-  var submit = function() {
-    tempGraph.submitting = false;
-    document.getElementById('chart').innerHTML = '';
-    tempGraph.formatChart('q='+this.value);
+  var submit = function(value) {
+    tempGraph.updateChart('q='+value);
+    setTimeout(function() {
+      tempGraph.submitting = false;
+    }, 500);
   };
 
   if (!tempGraph.submitting) {
     tempGraph.submitting = true;
-    setTimeout(submit.bind(e.target), 500);
+    submit(e.target.value);
   }
 
 });

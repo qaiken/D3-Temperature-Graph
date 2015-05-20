@@ -1,121 +1,149 @@
 module.exports = function(width,height,margin,circleWidth) {
 
-  var daysRef = [
-    'Sun',
-    'Mon',
-    'Tues',
-    'Weds',
-    'Thurs',
-    'Fri',
-    'Sat',
-    ],
+  var dataLength,
+    colors,
+    yScale,
+    xScale,
+    vGuideScale,
+    hGuideScale,
+    vAxis,
+    hAxis,
+    barData = [],
+    axisDays = [],
+    nodes = [],
+    links = [],
+    barWidth = 50,
+    barOffset = 5,
+    tooltip = d3.select('#tool-tip'),
+    height = height - margin.top - margin.bottom,
+    width = width - margin.left - margin.right,
+    daysRef = ['Sun','Mon','Tues','Weds','Thurs','Fri','Sat'],
+
     kelvin_to_f = function(k) {
       return (((k - 273.15)*1.8) + 32).toFixed(2);
     },
+
     unixCode_to_weekDay = function(uc) {
       return daysRef[new Date(uc*1000).getDay()];
     },
-    cityName,
-    dataLength,
-    height = height - margin.top - margin.bottom,
-    width = width - margin.left - margin.right,
-    barWidth = 50,
-    barOffset = 5,
-    tempColor;
+
+    svgContainer = d3.select('svg')
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom),
+
+    chart = svgContainer
+      .append('g')
+      .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
+
+    vGuide = svgContainer.append('g')
+      .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
+
+    hGuide = svgContainer.append('g')
+      .attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')'),
+
+    headline = svgContainer.append('text')
+      .classed('headline',true)
+      .attr('x', (width / 2))
+      .attr('y', (margin.top / 2))
+      .attr('text-anchor', 'middle')
+      .text('Temperatures for '),
+
+    citySpan = headline.append('tspan')
+      .text('Loading Location...');
 
     return {
       submitting: false,
-      formatChart: function(city) {
+      initData: function(data) {
 
-        d3.json('http://api.openweathermap.org/data/2.5/forecast/daily?'+city, function(data) {
+        var city;
 
-          var barData = [],
-            axisDays = [],
-            nodes = [],
-            links = [];
+        if(!data || data.cod === '404') return;
 
-          if(!data || data.cod === '404') return;
+        barData = [];
+        axisDays = [];
+        nodes = [];
+        links = [];
 
-          dataLength = data.list.length;
-          city = data.city.name + ', ' + data.city.country;
+        city = data.city.name + ', ' + data.city.country;
 
-          data.list.forEach(function(obj,i) {
+          citySpan
+            .text(city);
 
-            var f = kelvin_to_f(obj.temp.day),
-              weekDay = unixCode_to_weekDay(obj.dt),
-              node = {
-                'temp': f
-              };
+        dataLength = data.list.length;
 
-            barData.push(f);
-            axisDays.push(weekDay);
+        data.list.forEach(function(obj,i) {
 
-            if(i !== dataLength-1) node.target = i+1;
+          var f = kelvin_to_f(obj.temp.day),
+            weekDay = unixCode_to_weekDay(obj.dt),
+            node = {
+              'temp': f
+            };
 
-            nodes.push(node);
+          barData.push(f);
+          axisDays.push(weekDay);
 
-          });
+          if(i !== dataLength-1) node.target = i+1;
 
-          nodes.forEach(function(node) {
+          nodes.push(node);
 
-            if( node.hasOwnProperty('target') ) {
-              links.push({
-                'source': node,
-                'target': nodes[node.target]
-              });
-            }
+        });
 
-          });
+        colors = d3.scale.linear()
+          .domain([0, barData.length*0.33, barData.length*0.66, 7])
+          .range(['#B58929','#C61C6F', '#268BD2', '#85992C']);
 
-          var colors = d3.scale.linear()
-            .domain([0, barData.length*0.33, barData.length*0.66, barData.length])
-            .range(['#B58929','#C61C6F', '#268BD2', '#85992C']),
+        yScale = d3.scale.linear()
+          .domain([d3.min(barData)-5, d3.max(barData)+5])
+          .range([0, height]);
 
-            yScale = d3.scale.linear()
-              .domain([d3.min(barData)-5, d3.max(barData)+5])
-              .range([0, height]),
+        xScale = d3.scale.ordinal()
+          .domain(d3.range(0, barData.length))
+          .rangeBands([0, width], 0.2);
 
-            xScale = d3.scale.ordinal()
-              .domain(d3.range(0, barData.length))
-              .rangeBands([0, width], 0.2),
+        vGuideScale = d3.scale.linear()
+          .domain([d3.min(barData)-5, d3.max(barData)+5])
+          .range([height, 0]);
 
-            tooltip = d3.select('body').append('div')
-              .attr('id','tool-tip'),
+        hGuideScale = d3.scale.ordinal()
+          .domain(axisDays)
+          .rangeBands([0, width], 0.2);
 
-            svgContainer = d3.select('#chart').append('svg'),
+        vAxis = d3.svg.axis()
+          .scale(vGuideScale)
+          .orient('left')
+          .ticks(10);
 
-            chart = svgContainer
-              .style('background', '#E7E0CB')
-              .attr('width', width + margin.left + margin.right)
-              .attr('height', height + margin.top + margin.bottom)
-              .append('g')
-              .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
+        hAxis = d3.svg.axis()
+          .scale(hGuideScale)
+          .orient('bottom')
+          .tickValues(hGuideScale.domain());
 
-            vGuideScale = d3.scale.linear()
-              .domain([d3.min(barData)-5, d3.max(barData)+5])
-              .range([height, 0]),
+        hAxis(hGuide);
 
-            hGuideScale = d3.scale.ordinal()
-              .domain(axisDays)
-              .rangeBands([0, width], 0.2),
+        vAxis(vGuide);
 
-            vAxis = d3.svg.axis()
-              .scale(vGuideScale)
-              .orient('left')
-              .ticks(10),
+        nodes.forEach(function(node,i) {
 
-            hAxis = d3.svg.axis()
-              .scale(hGuideScale)
-              .orient('bottom')
-              .tickValues(hGuideScale.domain()),
+          node.x = xScale(i) + xScale.rangeBand()/2;
+          node.y = height - yScale(node.temp);
 
-          vGuide = d3.select('svg').append('g'),
-          hGuide = d3.select('svg').append('g');
+          if( node.hasOwnProperty('target') ) {
+            links.push({
+              'source': node,
+              'target': nodes[node.target]
+            });
+          }
 
-          nodes.forEach(function(node,i) {
-            node.x = xScale(i) + xScale.rangeBand()/2;
-            node.y = height - yScale(node.temp);
-          });
+        });
+
+      },
+      initChart: function(location) {
+
+        d3.json('http://api.openweathermap.org/data/2.5/forecast/daily?'+location, function(data) {
+
+          var tempColor;
+
+          this.initData(data);
 
           chart.selectAll('line')
             .data(links).enter().append('line')
@@ -175,22 +203,34 @@ module.exports = function(width,height,margin,circleWidth) {
             })
             .ease('elastic');
 
-          hAxis(hGuide);
-          hGuide.attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
+        }.bind(this));
 
-          vAxis(vGuide);
-          vGuide.attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+      },
+      updateChart: function(location) {
 
-          svgContainer.append("text")
-            .classed('headline',true)
-            .attr('x', (width / 2))
-            .attr('y', (margin.top / 2))
-            .attr('text-anchor', 'middle')
-            .text('Temperatures for ' + city);
+        d3.json('http://api.openweathermap.org/data/2.5/forecast/daily?'+location, function(data) {
 
-        });
+          this.initData(data);
+
+          chart.selectAll('circle')
+            .data(nodes)
+            .transition()
+            .ease('elastic')
+            .attr('cy', function(d) { return d.y; });
+
+          chart.selectAll('line')
+            .data(links)
+            .transition()
+            .ease('elastic')
+            .attr('x1', function(d) { return d.source.x; })
+            .attr('y1', function(d) { return d.source.y; })
+            .attr('x2', function(d) { return d.target.x; })
+            .attr('y2', function(d) { return d.target.y; });
+
+        }.bind(this));
 
       }
+
     };
 
 };
