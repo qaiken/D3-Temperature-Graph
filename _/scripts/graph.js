@@ -36,9 +36,11 @@ module.exports = function(width,height,margin,circleWidth) {
       .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
 
     vGuide = svgContainer.append('g')
+      .classed('axis',true)
       .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
 
     hGuide = svgContainer.append('g')
+      .classed('axis',true)
       .attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')'),
 
     headline = svgContainer.append('text')
@@ -66,8 +68,7 @@ module.exports = function(width,height,margin,circleWidth) {
 
         city = data.city.name + ', ' + data.city.country;
 
-          citySpan
-            .text(city);
+        citySpan.text(city);
 
         dataLength = data.list.length;
 
@@ -157,7 +158,7 @@ module.exports = function(width,height,margin,circleWidth) {
             .transition()
             .attr('x2', function(d) { return d.target.x; })
             .attr('y2', function(d) { return d.target.y; })
-            .delay(function(d, i) {
+            .delay(function(d,i) {
               return i * 200;
             })
             .ease('linear');
@@ -173,7 +174,7 @@ module.exports = function(width,height,margin,circleWidth) {
             .on('mouseover', function(d) {
 
               tooltip.transition()
-                .style('opacity', .9);
+                .style('opacity',0.9);
 
               tooltip.html(d.temp + '&deg;' + 'F')
                 .style('left', (d3.event.pageX - 35) + 'px')
@@ -182,14 +183,14 @@ module.exports = function(width,height,margin,circleWidth) {
               tempColor = this.style.fill;
 
               d3.select(this).transition()
-                .style('opacity', .5)
+                .style('opacity',0.5)
                 .style('fill', 'yellow');
 
             })
             .on('mouseout', function(d) {
 
               d3.select(this).transition()
-                .style('opacity', 1)
+                .style('opacity',1)
                 .style('fill', tempColor);
 
               tooltip.transition()
@@ -198,7 +199,7 @@ module.exports = function(width,height,margin,circleWidth) {
             })
             .transition()
             .attr('r',circleWidth)
-            .delay(function(d, i) {
+            .delay(function(d,i) {
                 return i * 200;
             })
             .ease('elastic');
@@ -215,12 +216,14 @@ module.exports = function(width,height,margin,circleWidth) {
           chart.selectAll('circle')
             .data(nodes)
             .transition()
+            .duration(2000)
             .ease('elastic')
             .attr('cy', function(d) { return d.y; });
 
           chart.selectAll('line')
             .data(links)
             .transition()
+            .duration(2000)
             .ease('elastic')
             .attr('x1', function(d) { return d.source.x; })
             .attr('y1', function(d) { return d.source.y; })
