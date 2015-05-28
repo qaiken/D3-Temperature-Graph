@@ -1,19 +1,19 @@
-var gulp = require('gulp'),
-    gutil = require('gulp-util'),
-    uglify = require('gulp-uglify'),
-    sass = require('gulp-ruby-sass'),
-    browserify = require('gulp-browserify'),
-    livereload = require('gulp-livereload'),
-    lr = require('tiny-lr'),
-    server = lr(),
-    jsSrcs = {
-      srcs: '_/scripts/*.js',
-      main: '_/scripts/app.js'
-    },
-    sassSrcs = {
-      srcs: '_/scss/*.scss',
-      main: '_/scss/styles.scss'
-    };
+var gulp = require('gulp');
+var gutil = require('gulp-util');
+var uglify = require('gulp-uglify');
+var sass = require('gulp-ruby-sass');
+var browserify = require('gulp-browserify');
+var livereload = require('gulp-livereload');
+var lr = require('tiny-lr');
+var server = lr();
+var jsSrcs = {
+  srcs: '_/scripts/*.js',
+  main: '_/scripts/app.js'
+};
+var sassSrcs = {
+  srcs: '_/scss/*.scss',
+  main: '_/scss/styles.scss'
+};
 
 gulp.task('js', function() {
   gulp.src(jsSrcs.main)
@@ -41,4 +41,3 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default', ['sass','js', 'watch']);
-

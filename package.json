@@ -4,11 +4,19 @@
   "description": "Uses OpenWeatherMap API to graph the temperatures of a user inputted city.",
   "author": "Quinton Aiken",
   "devDependencies": {
+    "browserify": "^10.2.1",
+    "browserify-shim": "^3.8.7",
     "gulp": "^3.8.11",
     "gulp-browserify": "^0.5.1",
     "gulp-livereload": "~1.1.1",
     "gulp-ruby-sass": "~0.3.0",
     "gulp-uglify": "~0.2.1",
     "gulp-util": "^3.0.4"
+  },
+  "browserify": {
+    "transform": [ "browserify-shim" ]
+  },
+  "browserify-shim": {
+    "d3": "global:d3"
   }
 }

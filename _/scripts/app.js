@@ -1,6 +1,6 @@
-var graph = require('./graph'),
-  geoLocation = require('./geolocation'),
-  tempGraph = graph(600,400,{top: 40, right: 30, bottom: 40, left: 50 },10);
+var graph = require('./graph');
+var geoLocation = require('./geolocation');
+var tempGraph = graph(600,400,{top: 40, right: 30, bottom: 40, left: 50 },10);
 
 geoLocation.init(function(pos) {
   var lat = pos.coords.latitude,
