@@ -14,44 +14,43 @@ module.exports = function(width,height,margin,circleWidth) {
   var width = width - margin.left - margin.right;
   var daysRef = ['Sun','Mon','Tues','Weds','Thurs','Fri','Sat'];
 
-  kelvin_to_f = function(k) {
+  var kelvin_to_f = function(k) {
     return (((k - 273.15)*1.8) + 32).toFixed(2);
-  },
+  };
 
-  unixCode_to_weekDay = function(uc) {
+  var unixCode_to_weekDay = function(uc) {
     return daysRef[new Date(uc*1000).getDay()];
-  },
+  };
 
-  svgContainer = d3.select('svg')
+  var svgContainer = d3.select('svg')
     .attr('width', width + margin.left + margin.right)
-    .attr('height', height + margin.top + margin.bottom),
+    .attr('height', height + margin.top + margin.bottom);
 
-  chart = svgContainer
+  var chart = svgContainer
     .append('g')
-    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
+    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
-  vGuide = svgContainer.append('g')
+  var vGuide = svgContainer.append('g')
     .classed('axis',true)
-    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')'),
+    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
-  hGuide = svgContainer.append('g')
+  var hGuide = svgContainer.append('g')
     .classed('axis',true)
-    .attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')'),
+    .attr('transform', 'translate(' + margin.left + ', ' + (height + margin.top) + ')');
 
-  headline = svgContainer.append('text')
+  var headline = svgContainer.append('text')
     .classed('headline',true)
     .attr('x', (width / 2))
     .attr('y', (margin.top / 2))
     .attr('text-anchor', 'middle')
-    .text('Temperatures for '),
+    .text('Temperatures for ');
 
-  citySpan = headline.append('tspan')
+  var citySpan = headline.append('tspan')
     .text('Loading Location...');
 
   return {
     submitting: false,
     initData: function(data) {
-
       var city;
 
       if(!data || data.cod === '404') return;
@@ -131,7 +130,6 @@ module.exports = function(width,height,margin,circleWidth) {
         }
 
       });
-
     },
     initChart: function(location) {
 

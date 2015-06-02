@@ -1,5 +1,4 @@
 module.exports = (function() {
-
   var geo;
 
   function getGeoLocation() {
@@ -21,5 +20,4 @@ module.exports = (function() {
   return {
     init: init
   };
-
 }());
