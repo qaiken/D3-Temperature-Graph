@@ -1,6 +1,6 @@
 var d3 = require('d3');
 
-module.exports = function(width,height,margin,circleWidth) {
+module.exports = function(width, height, margin, circleWidth) {
 
   var dataLength, colors, yScale, xScale, vGuideScale, hGuideScale, vAxis, hAxis;
   var barData = [];
@@ -66,7 +66,7 @@ module.exports = function(width,height,margin,circleWidth) {
 
       dataLength = data.list.length;
 
-      data.list.forEach(function(obj,i) {
+      data.list.forEach(function(obj, i) {
 
         var f = kelvin_to_f(obj.temp.day),
           weekDay = unixCode_to_weekDay(obj.dt),
@@ -85,7 +85,7 @@ module.exports = function(width,height,margin,circleWidth) {
 
       colors = d3.scale.linear()
         .domain([0, barData.length*0.33, barData.length*0.66, 7])
-        .range(['#B58929','#C61C6F', '#268BD2', '#85992C']);
+        .range(['#B58929', '#C61C6F', '#268BD2', '#85992C']);
 
       yScale = d3.scale.linear()
         .domain([d3.min(barData)-5, d3.max(barData)+5])
@@ -117,7 +117,7 @@ module.exports = function(width,height,margin,circleWidth) {
 
       vAxis(vGuide);
 
-      nodes.forEach(function(node,i) {
+      nodes.forEach(function(node, i) {
 
         node.x = xScale(i) + xScale.rangeBand()/2;
         node.y = height - yScale(node.temp);
@@ -141,7 +141,7 @@ module.exports = function(width,height,margin,circleWidth) {
 
         chart.selectAll('line')
           .data(links).enter().append('line')
-          .attr('stroke', function(d,i) {
+          .attr('stroke', function(d, i) {
             return colors(i);
           })
           .attr('x1', function(d) { return d.source.x; })
